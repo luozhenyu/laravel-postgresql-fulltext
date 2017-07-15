@@ -22,7 +22,7 @@ class PostgresqlSchemaServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->publishes([
-            __DIR__ . '/../config/fulltext.php' => config_path('fulltext.php'),
+            __DIR__ . '/config/fulltext.php' => config_path('fulltext.php'),
         ]);
     }
 
