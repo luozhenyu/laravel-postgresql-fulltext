@@ -1,23 +1,6 @@
 {
   "name": "luozhenyu/laravel-postgresql-fulltext",
-  "description": "Add fulltext support to postgresql tables",
-  "keywords": [
-    "laravel",
-    "postgres",
-    "postgresql",
-    "database",
-    "migrations",
-    "fulltext"
-  ],
-  "require": {
-    "php": ">=5.4.0",
-    "illuminate/support": "~5.2",
-    "illuminate/database": "~5.2"
-  },
-  "require-dev": {
-    "mockery/mockery": "~0.9",
-    "phpunit/phpunit": "^5.7"
-  },
+  "description": "Add fulltext and inherited table support to postgresql",
   "license": "MIT",
   "authors": [
     {
@@ -25,9 +8,32 @@
       "email": "lzy@luozy.cn"
     }
   ],
+  "keywords": [
+    "laravel",
+    "postgresql",
+    "database",
+    "fulltext",
+    "inherit"
+  ],
+  "require": {
+    "php": ">=5.6.4",
+    "illuminate/support": "~5.4",
+    "illuminate/database": "~5.4"
+  },
+  "require-dev": {
+    "mockery/mockery": "~0.9",
+    "phpunit/phpunit": "^5.7"
+  },
   "autoload": {
     "psr-4": {
-      "luozhenyu\\PostgresFullText\\": "src/"
+      "LuoZhenyu\\PostgresFullText\\": "src/PostgresFullText"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "LuoZhenyu\\PostgresFullText\\PostgresqlSchemaServiceProvider"
+      ]
     }
   },
   "minimum-stability": "stable"
