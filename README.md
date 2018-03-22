@@ -8,13 +8,15 @@ Add fulltext and inherited table support to postgresql
 ## Installation
 [PHP](https://php.net) **5.6.4+** and [Laravel](https://laravel.com) **5.4+** are required.
 
-Run the following command to install this package via composer
+Next step, you must install [amutu/zhparser](https://github.com/amutu/zhparser), and make sure it should work.
+
+Finally, run the following command to install this package via composer
 
 ```shell
 composer require "luozhenyu/laravel-postgresql-fulltext"
 ```
 
-Then you need to register the service provider. Open `config/app.php` and add the following to the `providers` array.
+If you are using laravel 5.4, then you need to register the service provider. Open `config/app.php` and add the following to the `providers` array.
 
 ```php
 LuoZhenyu\PostgresFullText\PostgresqlSchemaServiceProvider::class

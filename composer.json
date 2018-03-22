@@ -17,8 +17,8 @@
   ],
   "require": {
     "php": ">=5.6.4",
-    "illuminate/support": "~5.4",
-    "illuminate/database": "~5.4"
+    "illuminate/support": "^5.4",
+    "illuminate/database": "^5.4"
   },
   "require-dev": {
     "mockery/mockery": "~0.9",
@@ -26,7 +26,7 @@
   },
   "autoload": {
     "psr-4": {
-      "LuoZhenyu\\PostgresFullText\\": "src"
+      "LuoZhenyu\\PostgresFullText\\": "src/"
     }
   },
   "extra": {
