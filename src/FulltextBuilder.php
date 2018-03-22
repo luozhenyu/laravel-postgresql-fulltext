@@ -101,7 +101,7 @@ class FulltextBuilder
      */
     protected function to_tsquery($config)
     {
-        return sprintf('to_tsquery(\'%s\',?)',
+        return sprintf('plainto_tsquery(\'%s\', ?)',
             $config
         );
     }

@@ -26,7 +26,7 @@ class Blueprint extends BaseBlueprint
     /**
      * Add a new fulltext key to the blueprint.
      *
-     * @param array $columns
+     * @param string|array $columns
      * @param string $name
      * @param string $algorithm
      * @return \Illuminate\Support\Fluent

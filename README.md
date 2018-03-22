@@ -16,6 +16,12 @@ Finally, run the following command to install this package via composer
 composer require "luozhenyu/laravel-postgresql-fulltext"
 ```
 
+After install finished, run the following command to generate config file.
+
+```php
+php artisan vendor:publish --provider="LuoZhenyu\PostgresFullText\PostgresqlSchemaServiceProvider"
+```
+
 If you are using laravel 5.4, then you need to register the service provider. Open `config/app.php` and add the following to the `providers` array.
 
 ```php
