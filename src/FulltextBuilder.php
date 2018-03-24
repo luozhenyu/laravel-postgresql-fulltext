@@ -41,7 +41,20 @@ class FulltextBuilder
     public function search($keywords)
     {
         return function ($query) use ($keywords) {
-            $query->whereRaw($this->toQuery(), $keywords);
+            $query->whereRaw($this->makePlainTsQuery(), $keywords);
+        };
+    }
+
+    /**
+     * Build a closure to search using ts_query.
+     *
+     * @param string $keywords
+     * @return \Closure
+     */
+    public function searchUsingTsQuery($keywords)
+    {
+        return function ($query) use ($keywords) {
+            $query->whereRaw($this->makeTsQuery(), $keywords);
         };
     }
 
@@ -50,7 +63,7 @@ class FulltextBuilder
      *
      * @return string
      */
-    protected function toQuery()
+    protected function makeTsQuery()
     {
         return sprintf('%s @@ %s',
             $this->to_tsvector($this->columns),
@@ -59,18 +72,18 @@ class FulltextBuilder
     }
 
     /**
-     * Convert an array of columns into a tsvector.
+     * Create a plain fulltext query string.
      *
-     * @param array $columns
      * @return string
      */
-    protected function to_tsvector(array $columns)
+    protected function makePlainTsQuery()
     {
-        return sprintf('to_tsvector(\'%s\', %s)',
-            $this->getTextSearchConfig(),
-            $this->concatenate($columns)
+        return sprintf('%s @@ %s',
+            $this->to_tsvector($this->columns),
+            $this->plainto_tsquery($this->getTextSearchConfig())
         );
     }
+
 
     /**
      * Get the text search configuration.
@@ -96,13 +109,40 @@ class FulltextBuilder
     /**
      * Convert an array of columns into a tsvector.
      *
-     * @param string $config
+     * @param array $columns
      * @return string
      */
-    protected function to_tsquery($config)
+    protected function to_tsvector(array $columns)
+    {
+        return sprintf('to_tsvector(\'%s\', %s)',
+            $this->getTextSearchConfig(),
+            $this->concatenate($columns)
+        );
+    }
+
+    /**
+     * Make a tsquery.
+     *
+     * @param string $string
+     * @return string
+     */
+    protected function to_tsquery($string)
+    {
+        return sprintf('to_tsquery(\'%s\', ?)',
+            $string
+        );
+    }
+
+    /**
+     * Convert a string into tsquery.
+     *
+     * @param string $string
+     * @return string
+     */
+    protected function plainto_tsquery($string)
     {
         return sprintf('plainto_tsquery(\'%s\', ?)',
-            $config
+            $string
         );
     }
 }
