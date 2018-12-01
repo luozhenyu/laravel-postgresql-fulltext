@@ -22,7 +22,7 @@ class PostgresqlSchemaServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->publishes([
-            __DIR__ . '/config/fulltext.php' => config_path('fulltext.php'),
+            __DIR__ . '/config/config.php' => config_path('fulltext.php'),
         ]);
     }
 
@@ -33,6 +33,10 @@ class PostgresqlSchemaServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        $this->mergeConfigFrom(
+            __DIR__ . '/config/config.php', 'fulltext'
+        );
+
         Connection::resolverFor('pgsql', function ($connection, $database, $prefix, $config) {
             return new PostgresConnection($connection, $database, $prefix, $config);
         });

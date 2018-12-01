@@ -2,6 +2,7 @@
 
 namespace LuoZhenyu\PostgresFullText;
 
+
 use Illuminate\Database\Schema\Blueprint as BaseBlueprint;
 
 class Blueprint extends BaseBlueprint
@@ -54,8 +55,7 @@ class Blueprint extends BaseBlueprint
      */
     public function inherits($columns)
     {
-        $columns = (array)$columns;
-        foreach ($columns as $column) {
+        foreach (array_wrap($columns) as $column) {
             $this->inheritedTables[] = $column;
         }
     }

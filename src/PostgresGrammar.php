@@ -2,6 +2,7 @@
 
 namespace LuoZhenyu\PostgresFullText;
 
+
 use Illuminate\Database\Schema\Blueprint as BaseBlueprint;
 use Illuminate\Database\Schema\Grammars\PostgresGrammar as BasePostgresGrammar;
 use Illuminate\Support\Fluent;
@@ -11,28 +12,28 @@ class PostgresGrammar extends BasePostgresGrammar
     /**
      * Compile a create table command.
      *
-     * @param BaseBlueprint $blueprint
+     * @param \Illuminate\Database\Schema\Blueprint $blueprint
      * @param  \Illuminate\Support\Fluent $command
      * @return string
      */
-    public function compileCreate(BaseBlueprint $blueprint, Fluent $command)
+    public function compileCreate(BaseBlueprint $blueprint, Fluent $command): string
     {
-        $inheritedTables = $blueprint->getInheritedTables();
-
-        return sprintf('%s%s',
-            parent::compileCreate($blueprint, $command),
-            empty($inheritedTables) ? '' : ' inherits (' . $this->columnize($inheritedTables) . ')'
-        );
+        $expression = parent::compileCreate($blueprint, $command);
+        if ($blueprint instanceof Blueprint) {
+            $inheritedTables = $blueprint->getInheritedTables();
+            $expression = sprintf('%s inherits (%s)', $expression, $this->columnize($inheritedTables));
+        }
+        return $expression;
     }
 
     /**
      * Compile a fulltext index command.
      *
-     * @param Blueprint $blueprint
+     * @param \Illuminate\Database\Schema\Blueprint $blueprint
      * @param  \Illuminate\Support\Fluent $command
      * @return string
      */
-    public function compileFulltext(Blueprint $blueprint, Fluent $command)
+    public function compileFulltext(BaseBlueprint $blueprint, Fluent $command): string
     {
         return sprintf('create index %s on %s%s (%s)',
             $this->wrap($command->index),
@@ -48,7 +49,7 @@ class PostgresGrammar extends BasePostgresGrammar
      * @param array $columns
      * @return string
      */
-    public function to_tsvector(array $columns)
+    public function to_tsvector(array $columns): string
     {
         return sprintf('to_tsvector(\'%s\', %s)',
             $this->getTextSearchConfig(),
@@ -61,7 +62,7 @@ class PostgresGrammar extends BasePostgresGrammar
      *
      * @return string
      */
-    public function getTextSearchConfig()
+    public function getTextSearchConfig(): string
     {
         return config('fulltext.text_search_config');
     }
@@ -72,7 +73,7 @@ class PostgresGrammar extends BasePostgresGrammar
      * @param  array $columns
      * @return string
      */
-    public function concatenate(array $columns)
+    public function concatenate(array $columns): string
     {
         return implode('|| ', array_map([$this, 'wrap'], $columns));
     }
@@ -84,10 +85,11 @@ class PostgresGrammar extends BasePostgresGrammar
      * @param  \Illuminate\Support\Fluent $command
      * @return string
      */
-    public function compileDropFulltext(Blueprint $blueprint, Fluent $command)
+    public function compileDropFulltext(BaseBlueprint $blueprint, Fluent $command): string
     {
         $index = $this->wrap($command->index);
-
-        return "drop index {$index}";
+        return sprintf('drop index %s',
+            $index
+        );
     }
 }

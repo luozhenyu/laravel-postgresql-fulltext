@@ -3,6 +3,10 @@
 namespace LuoZhenyu\PostgresFullText;
 
 
+use Closure;
+use Illuminate\Database\Query\Expression;
+use Illuminate\Support\Facades\DB;
+
 class FulltextBuilder
 {
     /**
@@ -25,20 +29,20 @@ class FulltextBuilder
     /**
      * Set the columns to be searched.
      *
-     * @param $columns
+     * @param string|array $columns
      */
     public function setColumns($columns)
     {
-        $this->columns = (array)$columns;
+        $this->columns = array_wrap($columns);
     }
 
     /**
      * Build a closure to search keywords.
      *
      * @param string $keywords
-     * @return \Closure
+     * @return Closure
      */
-    public function search($keywords)
+    public function search(string $keywords): Closure
     {
         return function ($query) use ($keywords) {
             $query->whereRaw($this->makePlainTsQuery(), $keywords);
@@ -49,9 +53,9 @@ class FulltextBuilder
      * Build a closure to search using ts_query.
      *
      * @param string $keywords
-     * @return \Closure
+     * @return Closure
      */
-    public function searchUsingTsQuery($keywords)
+    public function searchUsingTsQuery(string $keywords): Closure
     {
         return function ($query) use ($keywords) {
             $query->whereRaw($this->makeTsQuery(), $keywords);
@@ -59,11 +63,25 @@ class FulltextBuilder
     }
 
     /**
+     * Build a expression to rank query results.
+     *
+     * @param string $keywords
+     * @return Expression
+     */
+    public function rank(string $keywords): Expression
+    {
+        return DB::raw(sprintf('ts_rank(%s, %s)',
+            $this->to_tsvector($this->columns),
+            $this->plainto_tsquery($this->getTextSearchConfig(), $keywords)
+        ));
+    }
+
+    /**
      * Create a fulltext query string.
      *
      * @return string
      */
-    protected function makeTsQuery()
+    protected function makeTsQuery(): string
     {
         return sprintf('%s @@ %s',
             $this->to_tsvector($this->columns),
@@ -76,7 +94,7 @@ class FulltextBuilder
      *
      * @return string
      */
-    protected function makePlainTsQuery()
+    protected function makePlainTsQuery(): string
     {
         return sprintf('%s @@ %s',
             $this->to_tsvector($this->columns),
@@ -84,13 +102,12 @@ class FulltextBuilder
         );
     }
 
-
     /**
      * Get the text search configuration.
      *
      * @return string
      */
-    public function getTextSearchConfig()
+    public function getTextSearchConfig(): string
     {
         return config('fulltext.text_search_config');
     }
@@ -101,7 +118,7 @@ class FulltextBuilder
      * @param  array $columns
      * @return string
      */
-    protected function concatenate(array $columns)
+    protected function concatenate(array $columns): string
     {
         return implode('|| ', $columns);
     }
@@ -112,7 +129,7 @@ class FulltextBuilder
      * @param array $columns
      * @return string
      */
-    protected function to_tsvector(array $columns)
+    protected function to_tsvector(array $columns): string
     {
         return sprintf('to_tsvector(\'%s\', %s)',
             $this->getTextSearchConfig(),
@@ -123,26 +140,34 @@ class FulltextBuilder
     /**
      * Make a tsquery.
      *
-     * @param string $string
+     * @param string $config
      * @return string
      */
-    protected function to_tsquery($string)
+    protected function to_tsquery(string $config): string
     {
         return sprintf('to_tsquery(\'%s\', ?)',
-            $string
+            $config
         );
     }
 
     /**
      * Convert a string into tsquery.
      *
-     * @param string $string
+     * @param string $config
+     * @param string|null $query
      * @return string
      */
-    protected function plainto_tsquery($string)
+    protected function plainto_tsquery(string $config, $query = null): string
     {
-        return sprintf('plainto_tsquery(\'%s\', ?)',
-            $string
+        if (is_null($query)) {
+            return sprintf('plainto_tsquery(\'%s\', ?)',
+                $config
+            );
+        }
+
+        return sprintf('plainto_tsquery(\'%s\', \'%s\')',
+            $config,
+            pg_escape_string($query)
         );
     }
 }
