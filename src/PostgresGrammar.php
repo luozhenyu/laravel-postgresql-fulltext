@@ -19,8 +19,7 @@ class PostgresGrammar extends BasePostgresGrammar
     public function compileCreate(BaseBlueprint $blueprint, Fluent $command): string
     {
         $expression = parent::compileCreate($blueprint, $command);
-        if ($blueprint instanceof Blueprint) {
-            $inheritedTables = $blueprint->getInheritedTables();
+        if ($blueprint instanceof Blueprint && count($inheritedTables = $blueprint->getInheritedTables()) > 0) {
             $expression = sprintf('%s inherits (%s)', $expression, $this->columnize($inheritedTables));
         }
         return $expression;
